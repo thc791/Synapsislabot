@@ -51,6 +51,7 @@ PRODUCT_MAP = {
     "email": "https://synapsislab.store/ai-intelligent-automatic-email/",
     "mail": "https://synapsislab.store/ai-intelligent-automatic-email/",
     "gmail": "https://synapsislab.store/ai-intelligent-automatic-email/"
+    "https://synapsislab.store/abaut-us/"
 }
 
 class BotRequest(BaseModel):

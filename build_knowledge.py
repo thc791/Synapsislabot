@@ -15,6 +15,7 @@ urls = [
     "https://synapsislab.store/excel-rag-intelligence/",
     "https://synapsislab.store/deep-intelligent-ai-analysis/",
     "https://synapsislab.store/ai-intelligent-automatic-email/"
+    "https://synapsislab.store/abaut-us/",
 ]
 
 knowledge_base = {}
