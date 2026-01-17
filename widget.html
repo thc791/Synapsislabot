@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Synapsis Neural Link</title>
+    <style>
+        /* --- STILE CYBERPUNK --- */
+        @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap');
+
+        :root {
+            --neon-green: #00ff41;
+            --dark-bg: #0d0d0d;
+            --glass-bg: rgba(10, 10, 10, 0.95);
+            --border-glow: 0 0 10px rgba(0, 255, 65, 0.5);
+        }
+
+        body { font-family: 'Share Tech Mono', monospace; background: transparent; }
+
+        /* Bottone Fluttuante */
+        #synapsis-launcher {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 60px;
+            height: 60px;
+            background: #000;
+            border: 2px solid var(--neon-green);
+            border-radius: 50%;
+            box-shadow: 0 0 15px var(--neon-green);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            transition: all 0.3s ease;
+            animation: pulse 2s infinite;
+        }
+
+        #synapsis-launcher:hover { transform: scale(1.1); box-shadow: 0 0 25px var(--neon-green); }
+        #synapsis-launcher svg { fill: var(--neon-green); width: 30px; height: 30px; }
+
+        /* Finestra Chat */
+        #synapsis-window {
+            position: fixed;
+            bottom: 90px;
+            right: 20px;
+            width: 350px;
+            height: 500px;
+            background: var(--glass-bg);
+            border: 1px solid var(--neon-green);
+            box-shadow: var(--border-glow);
+            display: none;
+            flex-direction: column;
+            z-index: 9999;
+            border-radius: 5px;
+        }
+
+        .chat-header {
+            background: rgba(0, 50, 0, 0.8);
+            padding: 10px;
+            border-bottom: 1px solid var(--neon-green);
+            color: var(--neon-green);
+            font-weight: bold;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            letter-spacing: 1px;
+        }
+
+        /* Controlli Header */
+        .header-controls { display: flex; gap: 10px; }
+        .icon-btn { cursor: pointer; opacity: 0.7; font-size: 18px; }
+        .icon-btn:hover { opacity: 1; text-shadow: 0 0 5px var(--neon-green); }
+        .active-voice { color: #fff; text-shadow: 0 0 8px #fff; opacity: 1; }
+
+        #chat-messages {
+            flex: 1;
+            padding: 15px;
+            overflow-y: auto;
+            color: #ddd;
+            font-size: 14px;
+            scrollbar-width: thin;
+            scrollbar-color: var(--neon-green) #000;
+        }
+
+        .msg {
+            margin-bottom: 15px;
+            padding: 8px 12px;
+            border-radius: 4px;
+            max-width: 90%;
+            word-wrap: break-word;
+        }
+
+        .msg.user {
+            background: rgba(0, 255, 65, 0.1);
+            border-left: 3px solid var(--neon-green);
+            align-self: flex-end;
+            margin-left: auto;
+            color: var(--neon-green);
+        }
+
+        .msg.bot {
+            background: rgba(0, 0, 0, 0.6);
+            border: 1px dashed #333;
+            color: #fff;
+        }
+
+        /* Link renderizzato bene */
+        .bot a { color: var(--neon-green); text-decoration: none; border-bottom: 1px dotted; }
+        .bot a:hover { background: var(--neon-green); color: #000; }
+
+        .input-area {
+            padding: 10px;
+            border-top: 1px solid var(--neon-green);
+            display: flex;
+            background: #000;
+        }
+
+        input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            color: var(--neon-green);
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 16px;
+            outline: none;
+        }
+
+        button.send-btn {
+            background: transparent;
+            border: 1px solid var(--neon-green);
+            color: var(--neon-green);
+            padding: 5px 15px;
+            cursor: pointer;
+            font-family: 'Share Tech Mono', monospace;
+        }
+        button.send-btn:hover { background: var(--neon-green); color: #000; }
+
+        @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(0, 255, 65, 0.4); } 70% { box-shadow: 0 0 0 10px rgba(0, 255, 65, 0); } 100% { box-shadow: 0 0 0 0 rgba(0, 255, 65, 0); } }
+        .typing-cursor::after { content: '█'; animation: blink 1s infinite; color: var(--neon-green); margin-left: 2px; }
+        @keyframes blink { 50% { opacity: 0; } }
+
+    </style>
+</head>
+<body>
+
+    <div id="synapsis-launcher" onclick="toggleChat()">
+        <svg viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"></path></svg>
+    </div>
+
+    <div id="synapsis-window">
+        <div class="chat-header">
+            <span>Synapsis AI</span>
+            <div class="header-controls">
+                <span id="voice-toggle" class="icon-btn" onclick="toggleVoice()" title="Toggle Voice">🔇</span>
+                <span class="close-btn icon-btn" onclick="toggleChat()">X</span>
+            </div>
+        </div>
+        <div id="chat-messages"></div>
+        <div class="input-area">
+            <input type="text" id="user-input" placeholder="Type command..." onkeypress="handleEnter(event)">
+            <button class="send-btn" onclick="sendMessage()">EXEC</button>
+        </div>
+    </div>
+
+    <script>
+        // CONFIGURAZIONE
+        const BACKEND_URL = "http://127.0.0.1:8000/ask"; 
+
+        const chatWindow = document.getElementById('synapsis-window');
+        const messagesDiv = document.getElementById('chat-messages');
+        const inputField = document.getElementById('user-input');
+        const voiceBtn = document.getElementById('voice-toggle');
+
+        let isChatOpen = false;
+        let isVoiceEnabled = false; // Di default spento
+        let synth = window.speechSynthesis;
+
+        function toggleChat() {
+            isChatOpen = !isChatOpen;
+            chatWindow.style.display = isChatOpen ? 'flex' : 'none';
+            if(isChatOpen && messagesDiv.children.length === 0) {
+                // Primo messaggio
+                addBotMessage("System Online. Ask me about Synapsis solutions (I speak Italian too).", false);
+            }
+        }
+
+        function toggleVoice() {
+            isVoiceEnabled = !isVoiceEnabled;
+            voiceBtn.textContent = isVoiceEnabled ? "🔊" : "🔇";
+            voiceBtn.className = isVoiceEnabled ? "icon-btn active-voice" : "icon-btn";
+            if(!isVoiceEnabled) synth.cancel(); // Zittisce se disattivi
+        }
+
+        function handleEnter(e) {
+            if (e.key === 'Enter') sendMessage();
+        }
+
+        async function sendMessage() {
+            const text = inputField.value.trim();
+            if (!text) return;
+
+            addMessage(text, 'user');
+            inputField.value = '';
+
+            const loadingId = addMessage("Analyzing...", 'bot', true);
+
+            try {
+                const response = await fetch(BACKEND_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        current_url: window.location.href,
+                        user_question: text
+                    })
+                });
+
+                const data = await response.json();
+                document.getElementById(loadingId).remove();
+
+                // Usa la funzione speciale per scrivere E parlare
+                typeWriterEffect(data.reply);
+
+            } catch (error) {
+                document.getElementById(loadingId).remove();
+                addMessage("CONNECTION ERROR.", 'bot');
+            }
+        }
+
+        function addMessage(text, sender, isLoading=false) {
+            const div = document.createElement('div');
+            div.className = `msg ${sender}`;
+            div.id = 'msg-' + Date.now();
+            div.textContent = text;
+            messagesDiv.appendChild(div);
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+            return div.id;
+        }
+
+        // Funzione Avanzata: Scrive + Parla + Formatta Link
+        function addBotMessage(text, speak=true) {
+            typeWriterEffect(text);
+        }
+
+        function typeWriterEffect(fullText) {
+            const div = document.createElement('div');
+            div.className = `msg bot typing-cursor`;
+            messagesDiv.appendChild(div);
+
+            // Rileva se c'è un link alla fine (separato da doppio a capo)
+            let speakableText = fullText;
+            let displayHTML = fullText.replace(/\n/g, "<br>");
+
+            // Trasforma i link in cliccabili
+            const urlRegex = /(https?:\/\/[^\s]+)/g;
+            displayHTML = displayHTML.replace(urlRegex, '<a href="$1" target="_blank">$1</a>');
+
+            // Puliamo il testo da leggere (niente link lunghi a voce)
+            speakableText = fullText.replace(/https?:\/\/[^\s]+/g, " check the link below. ");
+            speakableText = speakableText.replace(/🔗/g, ""); 
+            speakableText = speakableText.replace(/\*/g, ""); // Via gli asterischi
+
+            // Parla solo se attivato
+            if (isVoiceEnabled) {
+                speakText(speakableText);
+            }
+
+            // Effetto Scrittura Visiva (semplificato per HTML)
+            div.innerHTML = ""; 
+            let i = 0;
+            // Qui baro un po': scrivo tutto subito se c'è HTML complesso, 
+            // altrimenti l'effetto typewriter romperebbe i tag <a>
+            if(displayHTML.includes("<a")) {
+                div.innerHTML = displayHTML;
+                div.classList.remove('typing-cursor');
+                messagesDiv.scrollTop = messagesDiv.scrollHeight;
+            } else {
+                // Effetto lettera per lettera solo per testo puro
+                function type() {
+                    if (i < fullText.length) {
+                        div.textContent += fullText.charAt(i);
+                        i++;
+                        messagesDiv.scrollTop = messagesDiv.scrollHeight;
+                        setTimeout(type, 15);
+                    } else {
+                        div.classList.remove('typing-cursor');
+                    }
+                }
+                type();
+            }
+        }
+
+       function speakText(text) {
+            if (!synth) return;
+            synth.cancel(); // Zittisce se stava già parlando
+
+            const utterance = new SpeechSynthesisUtterance(text);
+            const voices = synth.getVoices();
+
+            // 1. RILEVAMENTO LINGUA (Semplice ma efficace)
+            // Cerchiamo parole comuni italiane. Se le trova, imposta IT, altrimenti EN.
+            const italianWords = /\b(il|lo|la|i|gli|le|un|uno|una|che|è|sono|per|con|del|della|questo|questa)\b/i;
+            const isItalian = italianWords.test(text);
+
+            // 2. SELEZIONE VOCE
+            let targetLang = isItalian ? 'it' : 'en'; // Cerca 'it-IT' o 'en-US'
+            
+            // Cerchiamo una voce che sia della lingua giusta E che sia "buona" (Google o Microsoft)
+            let chosenVoice = voices.find(v => 
+                v.lang.toLowerCase().includes(targetLang) && 
+                (v.name.includes("Google") || v.name.includes("Microsoft") || v.name.includes("Natural"))
+            );
+
+            // Se non trova una voce "premium", prende la prima voce disponibile in quella lingua
+            if (!chosenVoice) {
+                chosenVoice = voices.find(v => v.lang.toLowerCase().includes(targetLang));
+            }
+
+            // Se l'abbiamo trovata, la assegnamo
+            if (chosenVoice) {
+                utterance.voice = chosenVoice;
+                utterance.lang = chosenVoice.lang;
+                console.log("Voce selezionata:", chosenVoice.name); // Per debug (premi F12 per vedere)
+            }
+
+            // 3. SETTAGGI AUDIO
+            utterance.pitch = 1.0; // Tono normale
+            utterance.rate = 1.1;  // Velocità leggermente sostenuta (più professionale)
+            
+            synth.speak(utterance);
+        }
+
+        // Fix per Chrome: le voci a volte caricano in ritardo
+        speechSynthesis.onvoiceschanged = function() {
+            const voices = synth.getVoices();
+        };
+    </script>
+</body>
+</html>
