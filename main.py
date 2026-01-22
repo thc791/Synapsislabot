@@ -50,8 +50,11 @@ PRODUCT_MAP = {
     "analysis": "https://synapsislab.store/deep-intelligent-ai-analysis/",
     "email": "https://synapsislab.store/ai-intelligent-automatic-email/",
     "mail": "https://synapsislab.store/ai-intelligent-automatic-email/",
-    "gmail": "https://synapsislab.store/ai-intelligent-automatic-email/"
-    "https://synapsislab.store/abaut-us/"
+    "gmail": "https://synapsislab.store/ai-intelligent-automatic-email/",
+    "about": "https://synapsislab.store/abaut-us/",
+    "plugin": "https://synapsislab.store/wp-gemini-clone/",
+    "gemini clone": "https://synapsislab.store/wp-gemini-clone/",
+    "wp gemini": "https://synapsislab.store/wp-gemini-clone/"
 }
 
 class BotRequest(BaseModel):
