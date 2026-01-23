@@ -76,7 +76,7 @@ def ask_ai(request: BotRequest):
             break
     
     # 2. GESTIONE LINK E CONTESTO
-    final_link_to_append = "https://synapsislab.store/solution/" 
+    final_link_to_append = "https://synapsislab.store/servizi-soluzioni/" 
     
     if target_url and target_url in KNOWLEDGE_BASE:
         page_context = KNOWLEDGE_BASE[target_url]
