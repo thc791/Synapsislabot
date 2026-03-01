@@ -14,8 +14,11 @@ urls = [
     "https://synapsislab.store/ccv-ai/",
     "https://synapsislab.store/excel-rag-intelligence/",
     "https://synapsislab.store/deep-intelligent-ai-analysis/",
-    "https://synapsislab.store/ai-intelligent-automatic-email/"
-    "https://synapsislab.store/abaut-us/",
+    "https://synapsislab.store/ai-intelligent-automatic-email/",
+    "https://synapsislab.store/synapsis-synapsislab-ai-perfect-seo-il-plugin-wordpress-definitivo-per-un-ranking-superiore-a-50/",
+    "https://synapsislab.store/synapsis-rivoluziona-la-creazione-visuale-con-synapsislab-banana-image/",
+    "https://synapsislab.store/gemini-mirror-architectv1/",
+    "https://synapsislab.store/wp-gemini-clone/"
 ]
 
 knowledge_base = {}

@@ -1,4 +1,5 @@
 from fastapi import FastAPI
+from fastapi.responses import HTMLResponse
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from openai import OpenAI
@@ -14,6 +15,11 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+@app.get("/")
+def read_root():
+    return {"status": "Synapsis Bot API Online"}
+
 
 # --- CONFIGURAZIONE TOKEN ---
 HF_TOKEN = os.environ.get("HF_TOKEN")
@@ -53,8 +59,16 @@ PRODUCT_MAP = {
     "gmail": "https://synapsislab.store/ai-intelligent-automatic-email/",
     "about": "https://synapsislab.store/abaut-us/",
     "plugin": "https://synapsislab.store/wp-gemini-clone/",
+    "wordpress": "https://synapsislab.store/wp-gemini-clone/",
     "gemini clone": "https://synapsislab.store/wp-gemini-clone/",
-    "wp gemini": "https://synapsislab.store/wp-gemini-clone/"
+    "wp gemini": "https://synapsislab.store/wp-gemini-clone/",
+    "seo": "https://synapsislab.store/synapsis-synapsislab-ai-perfect-seo-il-plugin-wordpress-definitivo-per-un-ranking-superiore-a-50/",
+    "perfect seo": "https://synapsislab.store/synapsis-synapsislab-ai-perfect-seo-il-plugin-wordpress-definitivo-per-un-ranking-superiore-a-50/",
+    "banana": "https://synapsislab.store/synapsis-rivoluziona-la-creazione-visuale-con-synapsislab-banana-image/",
+    "banana image": "https://synapsislab.store/synapsis-rivoluziona-la-creazione-visuale-con-synapsislab-banana-image/",
+    "mirror": "https://synapsislab.store/gemini-mirror-architectv1/",
+    "architect": "https://synapsislab.store/gemini-mirror-architectv1/",
+    "gemini mirror": "https://synapsislab.store/gemini-mirror-architectv1/"
 }
 
 class BotRequest(BaseModel):
@@ -85,14 +99,13 @@ def ask_ai(request: BotRequest):
         # PROMPT MULTILINGUA SPECIFICO
         system_instruction = f"""
         You are the AI Sales Expert of 'Synapsis Lab'.
-        TOPIC: User is asking about {detected_product}.
         
-        RULES:
-        1. DETECT the language of the user's question (Italian, English, Spanish, etc.).
-        2. REPLY IN THE SAME LANGUAGE.
-        3. Explain why {detected_product} is the best solution using the context provided.
-        4. Tone: Professional, Technical, "Hacker-Chic".
-        5. Do NOT include the link in the text, I will add it automatically.
+        MANDATORY RULES:
+        1. DETECT the user's language and REPLY ONLY IN THAT LANGUAGE.
+        2. TOPIC: User is asking about {detected_product}. 
+        3. Explain why this is the best solution using the provided context.
+        4. Tone: Technical, Professional, Hacker-Chic.
+        5. Do NOT include links in the text.
         """
     else:
         page_context = KNOWLEDGE_BASE.get(request.current_url, "General info about Synapsis Lab")
@@ -100,11 +113,12 @@ def ask_ai(request: BotRequest):
         # PROMPT MULTILINGUA GENERICO
         system_instruction = """
         You are the AI Sales Expert of 'Synapsis Lab'.
-        RULES:
-        1. DETECT the language of the user's question.
-        2. REPLY IN THE SAME LANGUAGE.
-        3. Promote RAG systems, Databases and Automation tools personally, OCR for acquisition of large database papars,creations of systems TSS and SST for Automating calling.
-        4. Tone: Professional and concise.
+        
+        MANDATORY RULES:
+        1. DETECT the user's language and REPLY ONLY IN THAT LANGUAGE.
+        2. KNOWLEDGE BASE: We sell a Suite of 4 WordPress Plugins (SEO Optimization, Multi-language 100+, Banana Image for AI visual editing, and Sitemap Mirroring/Cloning).
+        3. ALWAYS confirm our expertise in AI plugins, RAG systems, and Automation.
+        4. Tone: Persuasive, Technical, and Professional.
         """
 
     messages = [
